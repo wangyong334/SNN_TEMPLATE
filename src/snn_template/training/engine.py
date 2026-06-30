@@ -11,12 +11,27 @@
 from __future__ import annotations
 
 import time
+import sys
 from pathlib import Path
 
 import torch
 from spikingjelly.activation_based import functional
+from tqdm.auto import tqdm
 
 from snn_template.utils.metrics import AverageMeter, accuracy_from_logits
+
+
+PROGRESS_BAR_FORMAT = (
+    "{desc}: {percentage:3.0f}%|{bar:12}| "
+    "{n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix}"
+)
+
+
+def _effective_batches(loader, max_batches: int | None) -> int:
+    """计算本轮实际运行的 batch 数，用于进度条显示。"""
+    if max_batches is None:
+        return len(loader)
+    return min(len(loader), max_batches)
 
 
 def forward_snn(model, encoder, images):
@@ -66,7 +81,17 @@ def train_one_epoch(
     spike_meter = AverageMeter()
     start_time = time.time()
 
-    for batch_idx, (images, labels) in enumerate(loader):
+    total_batches = _effective_batches(loader, max_batches)
+    progress = tqdm(
+        enumerate(loader),
+        total=total_batches,
+        desc=f"Train epoch {epoch:03d}",
+        bar_format=PROGRESS_BAR_FORMAT,
+        leave=True,
+        file=sys.stdout,
+    )
+
+    for batch_idx, (images, labels) in progress:
         if max_batches is not None and batch_idx >= max_batches:
             break
 
@@ -90,10 +115,12 @@ def train_one_epoch(
 
         if batch_idx % log_interval == 0:
             elapsed = time.time() - start_time
-            print(
-                f"epoch={epoch:03d} batch={batch_idx:04d}/{len(loader):04d} "
-                f"loss={loss_meter.avg:.4f} acc={acc_meter.avg:.4f} "
-                f"spike_rate={spike_meter.avg:.4f} time={elapsed:.1f}s"
+            progress.set_postfix_str(
+                f"loss={loss_meter.avg:.4f} "
+                f"acc={acc_meter.avg:.4f} "
+                f"spk={spike_meter.avg:.4f} "
+                f"lr={optimizer.param_groups[0]['lr']:.2e} "
+                f"t={elapsed:.1f}s"
             )
 
     return {
@@ -111,6 +138,7 @@ def evaluate(
     criterion,
     device,
     max_batches: int | None = None,
+    epoch: int | None = None,
 ):
     """评估模型。"""
     model.eval()
@@ -120,7 +148,18 @@ def evaluate(
     acc_meter = AverageMeter()
     spike_meter = AverageMeter()
 
-    for batch_idx, (images, labels) in enumerate(loader):
+    total_batches = _effective_batches(loader, max_batches)
+    desc = f"Eval  epoch {epoch:03d}" if epoch is not None else "Eval"
+    progress = tqdm(
+        enumerate(loader),
+        total=total_batches,
+        desc=desc,
+        bar_format=PROGRESS_BAR_FORMAT,
+        leave=True,
+        file=sys.stdout,
+    )
+
+    for batch_idx, (images, labels) in progress:
         if max_batches is not None and batch_idx >= max_batches:
             break
 
@@ -136,6 +175,11 @@ def evaluate(
         loss_meter.update(loss.item(), batch_size)
         acc_meter.update(acc, batch_size)
         spike_meter.update(spike_rate, batch_size)
+        progress.set_postfix_str(
+            f"loss={loss_meter.avg:.4f} "
+            f"acc={acc_meter.avg:.4f} "
+            f"spk={spike_meter.avg:.4f}"
+        )
 
     return {
         "loss": loss_meter.avg,

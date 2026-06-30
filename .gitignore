@@ -37,6 +37,7 @@ checkpoints/*
 !checkpoints/.gitkeep
 logs/*
 !logs/.gitkeep
+!logs/*.png
 runs/
 outputs/
 results/
@@ -50,4 +51,3 @@ wandb/
 
 # Logs
 *.log
-

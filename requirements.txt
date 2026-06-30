@@ -1,6 +1,12 @@
-torch
-torchvision
+# SNN_Template 普通 Python 依赖
+#
+# 注意：
+#   这里不放 torch / torchvision / torchaudio。
+#   PyTorch CUDA 版请先用 requirements-cu128.txt 单独安装，
+#   避免 pip 从 PyPI 选择到 CPU-only 版本。
+
 spikingjelly
 numpy
 pillow
-
+tqdm
+matplotlib

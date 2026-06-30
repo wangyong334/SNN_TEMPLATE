@@ -144,6 +144,7 @@ def main() -> None:
             criterion=criterion,
             device=device,
             max_batches=max_test_batches,
+            epoch=epoch,
         )
         lr = optimizer.param_groups[0]["lr"]
         print(

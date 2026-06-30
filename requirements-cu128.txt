@@ -1,0 +1,14 @@
+# PyTorch CUDA 12.8 依赖
+#
+# 用法：
+#   pip install -r requirements-cu128.txt
+#
+# 这个文件只使用 PyTorch CUDA 12.8 wheel 源，
+# 不混入 PyPI，避免误装 CPU-only torch。
+
+--index-url https://download.pytorch.org/whl/cu128
+
+torch
+torchvision
+torchaudio
+

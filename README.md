@@ -74,6 +74,7 @@ D:\Environment\envs\snn\python.exe train.py --epochs 10 --batch-size 64 --time-s
 训练过程中会打印：
 
 ```text
+train/eval progress bar
 loss
 accuracy
 spike_rate
@@ -88,6 +89,27 @@ best_acc
 checkpoints/best.pt
 checkpoints/last.pt
 logs/train_metrics.csv
+```
+
+## 分析训练结果
+
+```powershell
+python analyze_results.py
+```
+
+会输出：
+
+```text
+best_test_acc
+last_train_acc / last_test_acc
+generalization_gap
+train/test spike_rate
+```
+
+并生成：
+
+```text
+logs/metrics_curve.png
 ```
 
 ## 张量形状主线
