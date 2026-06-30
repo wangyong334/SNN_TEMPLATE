@@ -1,0 +1,53 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# CIFAR-10 and local datasets
+CIFAR-10.zip
+CIFAR-10/
+data/
+datasets/
+*.tar
+*.tar.gz
+*.tgz
+
+# Training outputs
+checkpoints/*
+!checkpoints/.gitkeep
+logs/*
+!logs/.gitkeep
+runs/
+outputs/
+results/
+wandb/
+
+# Model artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Logs
+*.log
+
